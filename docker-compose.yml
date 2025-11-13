@@ -1,0 +1,49 @@
+services:
+    spark-master:
+        image: spark-test
+        container_name: spark-master
+        hostname: spark-master
+        command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+        ports:
+            - 8080:8080
+            - 7077:7077
+            - 4040:4040
+        environment:
+            - SPARK_NO_DAEMONIZE=true
+        restart: unless-stopped
+        networks:
+            - dev
+
+    spark-worker-01:
+        container_name: spark-worker-01
+        hostname: spark-worker-01
+        image: spark-test
+        command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+        depends_on:
+            - spark-master
+        environment:
+            - SPARK_WORKER_MEMORY=2G
+            - SPARK_WORKER_CORES=6
+            - SPARK_NO_DAEMONIZE=true
+        restart: unless-stopped
+        networks:
+            - dev
+
+    spark-worker-02:
+        container_name: spark-worker-02
+        hostname: spark-worker-02
+        image: spark-test
+        command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+        depends_on:
+            - spark-master
+        environment:
+            - SPARK_WORKER_MEMORY=2G
+            - SPARK_WORKER_CORES=6
+            - SPARK_NO_DAEMONIZE=true
+        restart: unless-stopped
+        networks:
+            - dev
+
+networks:
+    dev:
+        driver: bridge
